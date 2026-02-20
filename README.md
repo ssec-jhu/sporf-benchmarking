@@ -1,6 +1,9 @@
 # sporf-benchmarking
 Benchmarking sporf in cuml against ydf and/or sklearn
 
+https://ydf.readthedocs.io/en/stable/tutorial/getting_started/
+
+
 ```
 conda create -n sporf_benchmarking python=3.13
 conda activate sporf_benchmarking
