@@ -15,6 +15,10 @@ from sklearn.model_selection import train_test_split
 from cuml.ensemble import SPORFClassifier as sporfc
 from cuml.testing.utils import get_handle
 
+DEFAULT_NUM_PROJECTIONS = 5
+JOVO_T7_N_FEATURES = 440_386
+DEFAULT_MAX_FEATURES = DEFAULT_NUM_PROJECTIONS / JOVO_T7_N_FEATURES
+
 
 def read_label_xlsx(path):
     ns = {"a": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
@@ -98,9 +102,9 @@ def make_ydf_dict(X, y=None):
     return data
 
 
-def base_hyperparameters(num_features):
-    num_trees = 4
-    num_projections = 5
+def base_hyperparameters(num_features, ntrees, max_features):
+    num_trees = ntrees
+    num_projections = DEFAULT_NUM_PROJECTIONS
     projection_density = 0.5
     bootstrap_size_ratio = 0.8
     max_depth = 18
@@ -121,7 +125,7 @@ def base_hyperparameters(num_features):
         "sparse_oblique_weights": "BINARY",
     }
     sporf_args = {
-        "max_features": num_projections / num_features,
+        "max_features": max_features,
         "max_samples": bootstrap_size_ratio,
         "density": projection_density,
         "n_bins": n_bins,
@@ -156,8 +160,8 @@ def train_predict_ydf(name, x_train, y_train, x_test, y_test, args, use_slow_eng
     }
 
 
-def train_predict_sporf(x_train, y_train, x_test, y_test, args):
-    n_streams = 100
+def train_predict_sporf(x_train, y_train, x_test, y_test, args, nstreams):
+    n_streams = nstreams
     handle, streams = get_handle(True, n_streams=n_streams)
     args = args | {"handle": handle, "n_streams": n_streams}
 
@@ -188,7 +192,15 @@ def print_result(result):
     print()
 
 
-def do_jovo(data_dir, train_split, ydf_use_slow_engine):
+def do_jovo(
+    data_dir,
+    train_split,
+    ydf_use_slow_engine,
+    trial,
+    ntrees,
+    nstreams,
+    max_features,
+):
     X, y, sample_ids, data_args = read_jovo_t7(data_dir)
     print(f"Loaded {data_args}")
     print(f"Target counts: {dict(zip(*np.unique(y, return_counts=True)))}")
@@ -202,37 +214,53 @@ def do_jovo(data_dir, train_split, ydf_use_slow_engine):
     x_test = np.ascontiguousarray(x_test.astype(np.float32, copy=False))
     y_test = np.ascontiguousarray(y_test.astype(np.int32, copy=False))
 
-    ydf_args, sporf_args, n_bins = base_hyperparameters(x_train.shape[1])
+    ydf_args, sporf_args, n_bins = base_hyperparameters(
+        x_train.shape[1], ntrees, max_features
+    )
     ydf_quantized_args = ydf_args | {
         "discretize_numerical_columns": True,
         "num_discretized_numerical_bins": n_bins,
     }
 
     results = [
-        train_predict_sporf(x_train, y_train, x_test, y_test, sporf_args),
-        train_predict_ydf(
-            "YDF sparse oblique",
-            x_train,
-            y_train,
-            x_test,
-            y_test,
-            ydf_args,
-            ydf_use_slow_engine,
-        ),
-        train_predict_ydf(
-            "YDF sparse oblique quantized",
-            x_train,
-            y_train,
-            x_test,
-            y_test,
-            ydf_quantized_args,
-            ydf_use_slow_engine,
-        ),
+        train_predict_sporf(x_train, y_train, x_test, y_test, sporf_args, nstreams)
     ]
+    if trial == "all":
+        results.extend(
+            [
+                train_predict_ydf(
+                    "YDF sparse oblique",
+                    x_train,
+                    y_train,
+                    x_test,
+                    y_test,
+                    ydf_args,
+                    ydf_use_slow_engine,
+                ),
+                train_predict_ydf(
+                    "YDF sparse oblique quantized",
+                    x_train,
+                    y_train,
+                    x_test,
+                    y_test,
+                    ydf_quantized_args,
+                    ydf_use_slow_engine,
+                ),
+            ]
+        )
 
     for result in results:
         print_result(result)
     return results
+
+
+def parse_max_features(value):
+    if value.lower() == "none":
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return value
 
 
 def parse_args():
@@ -254,7 +282,42 @@ def parse_args():
         action="store_true",
         help="Use YDF's fast inference engine. The wide T7 data may exceed its projection limits.",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--trial",
+        choices=["all", "sporf"],
+        default="all",
+        help="Trial to run: full comparison or cuML SPORF only.",
+    )
+    parser.add_argument(
+        "--ntrees",
+        default=4,
+        type=int,
+        help="Number of trees for each model.",
+    )
+    parser.add_argument(
+        "--nstreams",
+        default=None,
+        type=int,
+        help="Number of cuML streams. Defaults to --ntrees.",
+    )
+    parser.add_argument(
+        "--max-features",
+        default=DEFAULT_MAX_FEATURES,
+        type=parse_max_features,
+        help=(
+            "cuML SPORF max_features passthrough: float, string, or 'None'. "
+            f"Defaults to {DEFAULT_MAX_FEATURES:.12g}, equivalent to "
+            f"{DEFAULT_NUM_PROJECTIONS} projections on Jovo T7."
+        ),
+    )
+    args = parser.parse_args()
+    if args.ntrees < 1:
+        parser.error("--ntrees must be at least 1")
+    if args.nstreams is None:
+        args.nstreams = args.ntrees
+    elif args.nstreams < 1:
+        parser.error("--nstreams must be at least 1")
+    return args
 
 
 def main():
@@ -263,6 +326,10 @@ def main():
         data_dir=args.data_dir,
         train_split=args.train_split,
         ydf_use_slow_engine=not args.ydf_fast_engine,
+        trial=args.trial,
+        ntrees=args.ntrees,
+        nstreams=args.nstreams,
+        max_features=args.max_features,
     )
 
 
