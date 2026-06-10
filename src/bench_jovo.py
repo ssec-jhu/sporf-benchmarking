@@ -220,6 +220,7 @@ def do_jovo(
     ydf_quantized_args = ydf_args | {
         "discretize_numerical_columns": True,
         "num_discretized_numerical_bins": n_bins,
+        "sorting_strategy": "PRESORT",
     }
 
     results = [
