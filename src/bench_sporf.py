@@ -21,6 +21,10 @@ from cuml.ensemble import SPORFRegressor as sporfr
 from cuml.testing.utils import get_handle
 
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+HIGGS_PATH = PROJECT_ROOT / "data" / "higgs" / "HIGGS.csv"
+
+
 def print_result(result):
     print(f"Hyperparameters: {result['hyperparameters']}")
     print(f"YDF training time: {result['ydf_train_time']:.2f} seconds")
@@ -126,7 +130,9 @@ def do_trial(x_tr, y_tr, x_ts, y_ts, data_args, n_train, ydf_use_slow_engine=Fal
         "num_trees": num_trees,
         "split_axis": "SPARSE_OBLIQUE",
         "sparse_oblique_max_num_projections": num_projections,
-        "sparse_oblique_num_projections_exponent": 0.0,
+        # Use exponent=1 so max_num_projections is the active cap. With
+        # exponent=0, YDF tries one projection per node.
+        "sparse_oblique_num_projections_exponent": 1.0,
         "sparse_oblique_normalization": "NONE",
         "sparse_oblique_projection_density_factor": projection_density * num_features,
         "sparse_oblique_weights": "BINARY",
@@ -315,7 +321,7 @@ def do_higgs():
     train_split = 0.8
     # Load Higgs dataset
     # ds_path = "https://raw.githubusercontent.com/google/yggdrasil-decision-forests/main/yggdrasil_decision_forests/test_data/dataset"
-    ds_path = Path(__file__).resolve().parent.parent / "higgs.csv"
+    ds_path = HIGGS_PATH
     df = pd.read_csv(ds_path, header=None)
     y = df.iloc[:, 0].values
     X = df.iloc[:, 1:].values
@@ -331,7 +337,7 @@ def do_higgs():
 
 def do_quick():
     train_split = 0.8
-    ds_path = Path(__file__).resolve().parent.parent / "higgs.csv"
+    ds_path = HIGGS_PATH
     df = pd.read_csv(ds_path, header=None)
     y = df.iloc[:, 0].values
     X = df.iloc[:, 1:].values

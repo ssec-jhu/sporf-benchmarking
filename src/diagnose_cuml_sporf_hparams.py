@@ -23,6 +23,14 @@ DEFAULT_MAX_FEATURES_CASES = [
     "1.0",
     "bad",
 ]
+DEFAULT_DENSITY_CASES = [
+    "2",
+    "2.0",
+    "128",
+    "128.0",
+    "0.000290654107987",
+    "0.0186018629112",
+]
 
 
 def make_data(n_samples, n_features, random_state):
@@ -48,6 +56,13 @@ def parse_max_features(value):
         return float(value)
     except ValueError:
         return value
+
+
+def parse_int_or_float(value):
+    try:
+        return int(value)
+    except ValueError:
+        return float(value)
 
 
 def expected_projection_count(max_features, n_features):
@@ -314,11 +329,30 @@ def polymorphism_trials(X, y, args):
         )
 
 
+def density_polymorphism_trials(X, y, args):
+    max_features = args.projections / X.shape[1]
+    for density in args.density_cases:
+        run_case(
+            name=f"density={density!r}",
+            X=X,
+            y=y,
+            args=args,
+            max_features=max_features,
+            density=density,
+        )
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--trial",
-        choices=["all", "density", "projections", "polymorphism"],
+        choices=[
+            "all",
+            "density",
+            "projections",
+            "polymorphism",
+            "density-polymorphism",
+        ],
         default="all",
         help="Diagnostic trial group to run.",
     )
@@ -397,6 +431,16 @@ def parse_args():
             "int/float become int/float; 'None' becomes None; others stay strings."
         ),
     )
+    parser.add_argument(
+        "--density-cases",
+        type=parse_int_or_float,
+        nargs="+",
+        default=[parse_int_or_float(value) for value in DEFAULT_DENSITY_CASES],
+        help=(
+            "density argument polymorphism cases. Values without decimal points "
+            "become ints; values with decimal points become floats."
+        ),
+    )
 
     args = parser.parse_args()
     if isinstance(args.verbose, str):
@@ -440,6 +484,8 @@ def main():
         projection_trials(X, y, args)
     if args.trial in {"all", "polymorphism"}:
         polymorphism_trials(X, y, args)
+    if args.trial in {"all", "density-polymorphism"}:
+        density_polymorphism_trials(X, y, args)
 
 
 if __name__ == "__main__":

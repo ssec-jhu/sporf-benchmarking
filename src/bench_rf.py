@@ -127,7 +127,9 @@ def do_trial(label, n_train):
         "num_trees": num_trees,
         "split_axis": "SPARSE_OBLIQUE",
         "sparse_oblique_max_num_projections": num_projections,
-        "sparse_oblique_num_projections_exponent": 0.0,
+        # Use exponent=1 so max_num_projections is the active cap. With
+        # exponent=0, YDF tries one projection per node.
+        "sparse_oblique_num_projections_exponent": 1.0,
         "sparse_oblique_normalization": "NONE",
         "sparse_oblique_projection_density_factor": 0.5 * num_features,
         "sparse_oblique_weights": "BINARY",

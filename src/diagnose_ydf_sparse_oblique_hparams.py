@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 import numpy as np
@@ -97,12 +98,28 @@ def train_model(train_ds, learner_args, suppress_output=True):
         )
 
 
+def train_model_timed(train_ds, learner_args, suppress_output=True):
+    t0 = time.perf_counter()
+    model = train_model(train_ds, learner_args, suppress_output)
+    return model, time.perf_counter() - t0
+
+
 def model_description(model):
     describe = getattr(model, "describe", None)
     if describe is None:
         return ""
     value = describe()
     return "" if value is None else str(value)
+
+
+def predict_accuracy(model, X, y, suppress_output=True):
+    predict_ds = make_ydf_dict(X)
+
+    def do_predict():
+        return model.predict_class(predict_ds).astype(int)
+
+    predictions = run_with_suppressed_native_output(do_predict, suppress_output)
+    return float(np.mean(predictions == y))
 
 
 def read_serialized_text(model):
@@ -406,6 +423,31 @@ def tree_api_debug_lines(model):
     return lines
 
 
+def model_public_scalar_fields(model):
+    fields = {}
+    for name, value in object_fields(model):
+        if isinstance(value, SCALAR_TYPES):
+            fields[name] = value
+    return fields
+
+
+def accessible_tree_count(model, requested_num_trees):
+    get_tree = getattr(model, "get_tree", None)
+    if get_tree is None:
+        return None, "get_tree_unavailable"
+
+    count = 0
+    first_error = None
+    for tree_idx in range(requested_num_trees + 1):
+        try:
+            get_tree(tree_idx)
+        except Exception as exc:
+            first_error = f"{type(exc).__name__}: {exc}"
+            break
+        count += 1
+    return count, first_error
+
+
 def extract_winning_projection_nnz(model):
     tree_observations, tree_matching = extract_tree_api_nnz(model)
     sources = []
@@ -575,7 +617,10 @@ def geometric_quantile(success_probability, probability):
 
 
 def modeled_projection_count(max_num_projections, exponent, n_features):
-    return min(max_num_projections, int(n_features**exponent))
+    # Matches the YDF C++ sparse-oblique projection-count interpretation:
+    # compute n_features ** exponent, clamp that internal value at 6000, then
+    # apply sparse_oblique_max_num_projections as the final cap.
+    return min(max_num_projections, min(int(n_features**exponent), 6000))
 
 
 def projection_case_learner_args(args, max_num_projections, exponent):
@@ -774,11 +819,118 @@ def run_projection_count_trials(args):
         print()
 
 
+def tree_scaling_learner_args(args, num_trees):
+    learner_args = base_learner_args(args, args.tree_scale_nnz)
+    learner_args |= {
+        "num_trees": num_trees,
+        "max_depth": args.tree_scale_max_depth,
+        "sparse_oblique_max_num_projections": args.tree_scale_num_projections,
+        "sparse_oblique_num_projections_exponent": args.tree_scale_projection_exponent,
+        "random_seed": args.random_state,
+    }
+    return learner_args
+
+
+def run_tree_scaling_trials(args):
+    X, y = make_data(
+        args.tree_scale_samples,
+        args.n_features,
+        args.signal_nnz,
+        args.random_state,
+    )
+    train_ds = make_ydf_dict(X, y)
+
+    modeled_projection_count_value = modeled_projection_count(
+        args.tree_scale_num_projections,
+        args.tree_scale_projection_exponent,
+        args.n_features,
+    )
+
+    print("=" * 88)
+    print("TREE SCALING DIAGNOSTIC")
+    print(f"n_samples={args.tree_scale_samples}")
+    print(f"n_features={args.n_features}")
+    print(f"signal_nnz={args.signal_nnz}")
+    print(f"intended_e_nnz={args.tree_scale_nnz}")
+    print(f"max_num_projections={args.tree_scale_num_projections}")
+    print(f"num_projections_exponent={args.tree_scale_projection_exponent}")
+    print(
+        "effective_projection_count_formula="
+        "min(max_num_projections, min(int(n_features ** exponent), 6000))"
+    )
+    print(f"modeled_effective_projection_count={modeled_projection_count_value}")
+    print(
+        "purpose=confirm YDF trains the requested number of trees and measure "
+        "whether train time/accuracy scale with num_trees on a fixed synthetic dataset"
+    )
+    print()
+
+    timings = []
+    for requested_num_trees in args.tree_scale_ntrees:
+        learner_args = tree_scaling_learner_args(args, requested_num_trees)
+        model, train_time = train_model_timed(
+            train_ds,
+            learner_args,
+            args.suppress_ydf_output,
+        )
+        accuracy = predict_accuracy(
+            model,
+            X,
+            y,
+            suppress_output=args.suppress_ydf_output,
+        )
+        tree_count, tree_count_error = accessible_tree_count(
+            model, requested_num_trees
+        )
+        public_scalars = model_public_scalar_fields(model)
+        timings.append((requested_num_trees, train_time))
+
+        print("=" * 88)
+        print(f"CASE: num_trees={requested_num_trees}")
+        print(f"learner_args={learner_args}")
+        print("TL;DR:")
+        print(
+            "  trees: "
+            f"requested={requested_num_trees}, "
+            f"accessible_via_get_tree={format_number(tree_count)}, "
+            f"matches_requested={tree_count == requested_num_trees}"
+        )
+        print(
+            "  timing: "
+            f"train_time_s={train_time:.6g}, "
+            f"seconds_per_requested_tree={train_time / requested_num_trees:.6g}"
+        )
+        print(f"  training_accuracy={accuracy:.6g}")
+        if public_scalars:
+            print(f"  model_public_scalar_fields={public_scalars}")
+        if tree_count_error is not None:
+            print(f"  get_tree_stop={tree_count_error}")
+        print()
+
+    if len(timings) > 1:
+        base_trees, base_time = timings[0]
+        print("=" * 88)
+        print("TREE SCALING SUMMARY")
+        print(f"baseline_num_trees={base_trees}")
+        print(f"baseline_train_time_s={base_time:.6g}")
+        for requested_num_trees, train_time in timings[1:]:
+            ideal_ratio = requested_num_trees / base_trees
+            observed_ratio = train_time / base_time if base_time > 0 else math.inf
+            print(
+                "  scaling: "
+                f"num_trees={requested_num_trees}, "
+                f"ideal_time_ratio={ideal_ratio:.6g}, "
+                f"observed_time_ratio={observed_ratio:.6g}, "
+                f"observed_over_ideal={observed_ratio / ideal_ratio:.6g}"
+            )
+        print()
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--trial",
-        choices=["all", "nnz", "projections"],
+        choices=["all", "nnz", "projections", "trees"],
         default="all",
         help="Diagnostic trial group to run.",
     )
@@ -854,6 +1006,43 @@ def parse_args():
         action="store_true",
         help="Print root projection attributes for projection-count trials.",
     )
+    parser.add_argument(
+        "--tree-scale-ntrees",
+        type=int,
+        nargs="+",
+        default=[1, 2, 4, 10, 30],
+        help="Tree counts for the YDF tree-scaling diagnostic.",
+    )
+    parser.add_argument(
+        "--tree-scale-samples",
+        type=int,
+        default=512,
+        help="Synthetic samples for the tree-scaling diagnostic.",
+    )
+    parser.add_argument(
+        "--tree-scale-nnz",
+        type=float,
+        default=2.0,
+        help="sparse_oblique_projection_density_factor for tree scaling.",
+    )
+    parser.add_argument(
+        "--tree-scale-num-projections",
+        type=int,
+        default=10,
+        help="sparse_oblique_max_num_projections for tree scaling.",
+    )
+    parser.add_argument(
+        "--tree-scale-projection-exponent",
+        type=float,
+        default=1.0,
+        help="sparse_oblique_num_projections_exponent for tree scaling.",
+    )
+    parser.add_argument(
+        "--tree-scale-max-depth",
+        type=int,
+        default=6,
+        help="max_depth for tree scaling.",
+    )
 
     args = parser.parse_args()
     if args.n_samples < 2:
@@ -882,6 +1071,21 @@ def parse_args():
         parser.error("--projection-test-nnz cannot exceed --n-features")
     if args.projection_test_max_depth < 1:
         parser.error("--projection-test-max-depth must be at least 1")
+    if not args.tree_scale_ntrees:
+        parser.error("--tree-scale-ntrees cannot be empty")
+    if any(value < 1 for value in args.tree_scale_ntrees):
+        parser.error("--tree-scale-ntrees values must be at least 1")
+    args.tree_scale_ntrees = sorted(set(args.tree_scale_ntrees))
+    if args.tree_scale_samples < 2:
+        parser.error("--tree-scale-samples must be at least 2")
+    if args.tree_scale_nnz <= 0:
+        parser.error("--tree-scale-nnz must be positive")
+    if args.tree_scale_nnz > args.n_features:
+        parser.error("--tree-scale-nnz cannot exceed --n-features")
+    if args.tree_scale_num_projections < 1:
+        parser.error("--tree-scale-num-projections must be at least 1")
+    if args.tree_scale_max_depth < 1:
+        parser.error("--tree-scale-max-depth must be at least 1")
     return args
 
 
@@ -892,6 +1096,8 @@ def main():
             run_case(args, intended_nnz)
     if args.trial in {"all", "projections"}:
         run_projection_count_trials(args)
+    if args.trial in {"all", "trees"}:
+        run_tree_scaling_trials(args)
 
 
 if __name__ == "__main__":

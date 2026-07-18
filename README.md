@@ -1,6 +1,408 @@
 # sporf-benchmarking
 Benchmarking sporf in cuml against ydf and/or sklearn
 
+## Run something now now now
+With current working directory set to this repo's root, copy/symlink the jovo dataset to `data/jovo/T7`, so that its directory listing looks like:
+```
+data/jovo/T7/t7_20260519_440k.csv.gz
+data/jovo/T7/t7_20260519_440k_labels.xlsx
+```
+I also put the Higgs dataset here, so I have `data/higgs/HIGGS.csv`.
+
+Then the easiest way to get cuml sporf working should be as follows, with current working directory set to the parent of this `sporf-benchmarking` repo.
+
+```
+git clone git@github.com:ssec-jhu/cuml.git
+cd cuml
+conda create -n cuml_dev --file env-explicit.txt
+conda activate cuml_dev
+./build.sh
+cd ../sporf-benchmarking
+python -s ./src/bench_compare.py run ./doc/examples/benchmark-feature-scaling
+python -s ./src/bench_compare.py plot ./doc/examples/benchmark-feature-scaling
+```
+
+## `bench_compare.py`
+This script has two major subcommands: `run` and `plot`.
+
+`run` requires a trial spec like the following example:
+```
+{
+  "name": "jovo-feature-scale-example",
+  "task": "classification",
+  "dataset": {
+    "kind": "jovo_t7",
+    "data_dir": "../../../data/jovo/T7",
+    "train_split": 0.8
+  },
+  "models": ["cuml"],
+  "hyperparameters": {
+    "n_trees": 100,
+    "n_features": [
+      {"value": 400000, "n_streams": 1},
+      {"value": 200000, "n_streams": 1},
+      {"value": 100000, "n_streams": 2},
+      {"value": 50000, "n_streams": 4},
+      {"value": 25000, "n_streams": 8},
+      {"value": 10000, "n_streams": 10},
+      {"value": 1000, "n_streams": 10},
+      {"value": 100, "n_streams": 10}
+    ],
+    "default_n_streams": 10,
+    "expected_nnz": 2,
+    "num_projections": 10,
+    "max_depth": 18,
+    "min_leaf": 2,
+    "bootstrap": 0.8,
+    "n_bins": 128
+  },
+  "trials": {"n": 3, "base_seed": 20260710}
+}
+```
+The `hyperparameters` section takes, for each hyperparameter, either a scalar value, or for one choice of hyperparameter, a list of `{"value", "n_streams"}` dicts which allow an independent variable sweep. The run will produce, among its output, a plot spec which can be read by the `plot` subcommand pointed at the containing directory. The plot spec will look something like:
+```
+{
+  "name": "jovo-feature-scale-example",
+  "plot": {
+    "caption_note": "train_time excludes data loading/generation, feature subsampling, and YDF dict construction.",
+    "models": [
+      "cuml"
+    ],
+    "quality_label": "Test accuracy",
+    "quality_metric": "accuracy",
+    "time_metric": "train_time",
+    "time_scale": "log",
+    "x": "n_features",
+    "x_label": "Feature dimensionality"
+  },
+  "runs": [
+    "."
+  ],
+  "title": "jovo-feature-scale-example"
+}
+```
+Here `runs` is a list of run directories, so that results from multiple runs can be combined in a single plot. The `plot` subcommand will attempt to resolve and annotate hyperparameter divergences in the plot caption. All runs to be combined need to sweep the same hyperparameter.
+
+## Trial spec schema
+
+`bench_compare.py run ROOT_DIR` reads exactly `ROOT_DIR/trial_spec.json`. Paths inside
+the trial spec, such as `dataset.data_dir`, are resolved relative to `ROOT_DIR`
+unless they are absolute.
+
+Top-level fields:
+
+- `name` (string, required): Human-readable benchmark name. Used in outputs and
+  as the default plot title.
+- `run_id` (string, optional): Stable identifier for rows from this run. Defaults
+  to `name`.
+- `task` (string, required): One of `classification` or `regression`.
+- `dataset` (object, required): Dataset source and dataset-specific options.
+- `models` (array of strings, required): Any non-empty combination of `cuml`,
+  `ydf`, and `ydf_quantized`.
+- `hyperparameters` (object, required): Learner hyperparameters and the single
+  independent-variable sweep.
+- `trials` (object, required): Repeated-trial count and seed generation config.
+
+Dataset fields:
+
+- `dataset.kind` (string, required): One of `jovo_t7`, `synthetic_wide`, or
+  `synthetic_friedman`.
+- `dataset.data_dir` (string, optional): Jovo T7 data directory. Used only for
+  `jovo_t7`; defaults to `data/jovo/T7`.
+- `dataset.train_split` (float, optional): Jovo train fraction; defaults to
+  `0.8`.
+- `dataset.split_seed` (int, optional): Jovo train/test split seed; defaults to
+  `123`.
+- `dataset.feature_subsample_seed` (int, optional): Jovo feature-subset seed. If
+  omitted, the trial seed is used.
+- `dataset.n_train` (int, optional): Synthetic training rows; defaults to `800`.
+- `dataset.n_test` (int, optional): Synthetic test rows; defaults to `200`.
+- `dataset.informative_fraction` (float, optional): Synthetic informative-feature
+  fraction; defaults to `0.5`.
+- `dataset.signal_strength` (float, optional): Class-dependent mean shift for
+  `synthetic_wide`; defaults to `0.5`.
+- `dataset.noise` (float, optional): Gaussian target noise for
+  `synthetic_friedman`; defaults to `1.0`.
+- `dataset.mode` (string, optional): `synthetic_friedman` mode, either `blocks`
+  or `canonical`; defaults to `blocks`.
+
+Task/dataset constraints:
+
+- `jovo_t7` is classification-only.
+- `synthetic_wide` is classification-only.
+- `synthetic_friedman` is regression-only.
+
+Hyperparameter fields:
+
+- `n_features` (int or sweep list, required): Input dimensionality.
+- `expected_nnz` (number or sweep list, required): Expected nonzero entries per
+  sparse projection. For cuML, integer values are passed as absolute E[NNZ];
+  floats are fractional densities. For YDF, this is passed as
+  `sparse_oblique_projection_density_factor`.
+- `n_trees` (int or sweep list, required): Forest size.
+- `num_projections` (int, required): Sparse projections tried per node. This maps
+  to cuML `max_features` and YDF `sparse_oblique_max_num_projections`.
+- `max_depth` (int, required): Maximum tree depth.
+- `min_leaf` (int, required): Minimum examples/samples per leaf.
+- `bootstrap` (float, required): Bootstrap sample ratio in `(0, 1]`.
+- `n_bins` (int, required): cuML histogram bins and YDF quantized-bin count when
+  running `ydf_quantized`.
+- `default_n_streams` (int, optional): Default cuML stream count for sweep points
+  that do not specify their own `n_streams`.
+
+Exactly one of `n_features`, `expected_nnz`, or `n_trees` must be a sweep list.
+The other two must be scalar values. Sweep list items can be either raw values:
+
+```
+"n_trees": [10, 30, 100, 300]
+```
+
+or objects with an explicit cuML stream count:
+
+```
+"n_features": [
+  {"value": 400000, "n_streams": 1},
+  {"value": 200000, "n_streams": 2},
+  {"value": 100000, "n_streams": 4}
+]
+```
+
+If a sweep item omits `n_streams`, `default_n_streams` is used. If neither is
+available, the spec is invalid. `n_streams` affects only cuML SPORF; YDF uses its
+default CPU threading.
+
+Trial fields:
+
+- `trials.n` (int, required): Number of seed trials per sweep point.
+- `trials.base_seed` (int, required): Seed used to generate the deterministic
+  sequence of per-trial seeds.
+
+Run outputs written in `ROOT_DIR`:
+
+- `results.csv`: One row per completed `(model, sweep point, trial)` result.
+- `resolved_spec.json`: Fully resolved spec, including planned runs and exact
+  learner argument dictionaries.
+- `hparams.jsonl`: Commented JSONL sidecar with the actual learner arguments per
+  planned run.
+- `tree_diagnostics.csv`: cuML per-tree diagnostics, when available.
+- `plot_spec.json`: Starter plot spec, written only if it does not already exist.
+
+## Plot spec schema
+
+`bench_compare.py plot ROOT_DIR` reads exactly `ROOT_DIR/plot_spec.json`. Paths
+inside the plot spec are resolved relative to `ROOT_DIR` unless they are
+absolute.
+
+Top-level fields:
+
+- `name` (string, required): Plot run name.
+- `title` (string, required): Figure title.
+- `runs` (array, required): One or more trial run directories to combine.
+- `plot` (object, required): Plot layout, metrics, models, and annotations.
+- `outputs` (object, optional): Output path overrides.
+
+`runs` entries can be directory strings:
+
+```
+"runs": [".", "../other-run"]
+```
+
+or objects:
+
+```
+"runs": [
+  {
+    "dir": "../other-run",
+    "spec": "resolved_spec.json",
+    "results": "results.csv",
+    "diagnostics": "tree_diagnostics.csv"
+  }
+]
+```
+
+For a string run, the plotter expects `resolved_spec.json`, `results.csv`, and
+`tree_diagnostics.csv` under that run directory. In object form, `dir` is
+required and `spec`, `results`, and `diagnostics` are optional path overrides.
+
+Combined runs must be compatible:
+
+- They must sweep the same `plot.x` hyperparameter.
+- Their compatibility blocks must match apart from model set. In practice, this
+  means the same task, dataset spec, timing definition, and fixed
+  hyperparameters.
+- Multiple `n_streams` values for the same sweep value are rejected unless
+  `plot.allow_mixed_streams_per_x` is `true`.
+
+Plot fields:
+
+- `plot.x` (string, required): Swept x-axis hyperparameter. One of
+  `n_features`, `expected_nnz`, or `n_trees`.
+- `plot.x_label` (string, required): X-axis label.
+- `plot.time_metric` (string, required): Timing metric for the top panel. One of
+  `train_time` or `predict_time`.
+- `plot.quality_metric` (string, required): Quality metric for the bottom panel.
+  One of `accuracy`, `r2`, or `rmse`.
+- `plot.quality_label` (string, required): Bottom-panel y-axis label.
+- `plot.models` (array of strings, required): Models to include. Values are
+  `cuml`, `ydf`, and `ydf_quantized`.
+- `plot.time_scale` (string, optional): `log` or `linear`; defaults to `log`.
+- `plot.time_label` (string, optional): Top-panel y-axis label.
+- `plot.caption_note` (string, optional): Extra text appended to the generated
+  caption.
+- `plot.allow_mixed_streams_per_x` (bool, optional): Allow multiple cuML stream
+  counts at the same x value when combining runs; defaults to `false`.
+- `plot.diagnostics` (object, optional): Right-axis overlay of cuML tree
+  diagnostics on the timing panel.
+
+Diagnostic overlay fields:
+
+- `plot.diagnostics.metrics` (array of strings, required): One or more columns
+  from `tree_diagnostics.csv` to aggregate and overlay.
+- `plot.diagnostics.aggregate` (string, optional): One of `mean`, `median`,
+  `sum`, `min`, or `max`; defaults to `mean`.
+- `plot.diagnostics.scale` (string, optional): `log` or `linear`; defaults to
+  `log`.
+- `plot.diagnostics.label` (string, optional): Right-axis label.
+
+Available cuML tree diagnostic metrics are:
+
+```
+tree_index
+treeid
+depth
+n_nodes
+n_split_nodes
+n_leaf_nodes
+leaf_counter
+training_observation_count
+weighted_training_path_depth
+min_training_leaf_depth
+max_training_leaf_depth
+train_time_ms
+num_outputs
+n_projection_slots
+n_populated_projection_vectors
+projection_indptr_size
+projection_indices_size
+projection_coeffs_size
+projection_payload_nnz
+projection_payload_bytes
+leaf_vector_size
+leaf_vector_bytes
+```
+
+Output fields:
+
+- `outputs.png` (string, optional): Figure output path. Defaults to `plot.png`.
+- `outputs.csv` (string, optional): Combined result CSV path. Defaults to
+  `combined.csv`.
+- `outputs.resolved_plot_spec` (string, optional): Resolved plot spec output.
+  Defaults to `plot.resolved.json`.
+
+For the authoritative enum reference emitted by the script itself, run:
+
+```
+python -s ./src/bench_compare.py schema
+```
+
+## Using the SPORF learners by hand
+
+The cuML fork exposes SPORF through sklearn-style estimators:
+`cuml.ensemble.SPORFClassifier` and `cuml.ensemble.SPORFRegressor`. The
+classifier can be used directly as follows:
+
+```python
+import numpy as np
+
+from cuml.ensemble import SPORFClassifier
+from cuml.testing.utils import get_handle
+
+
+X_train = np.ascontiguousarray(X_train, dtype=np.float32)
+y_train = np.ascontiguousarray(y_train, dtype=np.int32)
+X_test = np.ascontiguousarray(X_test, dtype=np.float32)
+
+n_features = X_train.shape[1]
+n_streams = 8
+handle, _streams = get_handle(True, n_streams=n_streams)
+
+clf = SPORFClassifier(
+    n_estimators=100,
+    max_depth=18,
+    min_samples_leaf=2,
+    max_samples=0.8,
+    max_features=10,
+    density=2,
+    n_bins=128,
+    split_criterion=0,
+    max_leaves=-1,
+    random_state=123,
+    n_streams=n_streams,
+    handle=handle,
+    verbose=False,
+)
+
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test, predict_model="CPU")
+
+if hasattr(clf, "get_diagnostics_csv"):
+    diagnostics_csv = clf.get_diagnostics_csv()
+```
+
+The regressor is analogous:
+
+```python
+from cuml.ensemble import SPORFRegressor
+```
+
+For regression, use floating-point targets and the regression split criterion
+used by these benchmarks:
+
+```python
+split_criterion=2
+```
+
+Important constructor arguments:
+
+- `n_estimators`: Number of trees in the forest.
+- `max_depth`: Maximum depth of each tree. Runtime is sensitive to tree
+  morphology, so this affects both model capacity and work done.
+- `min_samples_leaf`: Minimum samples allowed in a leaf.
+- `max_samples`: Bootstrap sample ratio. For example, `0.8` samples 80% of the
+  training rows for each tree.
+- `max_features`: For SPORF, this is the number of sparse random projections to
+  try at each split node. An integer is an absolute projection count. A float is
+  interpreted as a fraction of `n_features`; strings such as `"sqrt"` and
+  `"log2"` follow the usual random-forest interpretation.
+- `density`: Sparse projection density. An integer is interpreted as absolute
+  E[NNZ] per projection. A float must be in `(0, 1]` and is interpreted as the
+  fraction of input features included in each sparse projection, so
+  `density=2 / n_features` is equivalent to absolute E[NNZ] of 2.
+- `n_bins`: Histogram bin count used for split search.
+- `split_criterion`: `0` for classification in these benchmarks; `2` for
+  regression.
+- `max_leaves`: Maximum leaves per tree. `-1` disables this cap.
+- `random_state`: Seed for reproducible forests.
+- `n_streams`: Number of CUDA streams used for concurrent tree building. Higher
+  values can improve throughput but increase concurrent memory pressure.
+- `handle`: RAFT/cuML handle. If you pass `n_streams`, construct the handle with
+  the same stream count.
+- `verbose`: Set to `True` or the cuML debug verbosity level to print native
+  diagnostics. With the instrumented fork, `get_diagnostics_csv()` is usually a
+  cleaner way to inspect per-tree metadata after fitting.
+
+The most important SPORF-specific matching pair is:
+
+```python
+max_features = num_projections_per_node
+density = expected_nnz_per_projection
+```
+
+For example, `max_features=10, density=2` means each split node tries 10 sparse
+random projections, each with expected 2 nonzero feature coefficients.
+
+## Notes Archive
+### Of archival interest only
 https://ydf.readthedocs.io/en/stable/tutorial/getting_started/
 
 
