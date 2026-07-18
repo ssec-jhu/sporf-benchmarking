@@ -1,0 +1,32 @@
+{
+  "name": "jovo-feature-scale-example",
+  "task": "classification",
+  "dataset": {
+    "kind": "jovo_t7",
+    "data_dir": "../../../data/jovo/T7",
+    "train_split": 0.8
+  },
+  "models": ["cuml"],
+  "hyperparameters": {
+    "n_trees": 100,
+    "n_features": [
+      {"value": 100, "n_streams": 10},
+      {"value": 1000, "n_streams": 10},
+      {"value": 10000, "n_streams": 10},
+      {"value": 25000, "n_streams": 8},
+      {"value": 50000, "n_streams": 4},
+      {"value": 100000, "n_streams": 2},
+      {"value": 200000, "n_streams": 1},
+      {"value": 300000, "n_streams": 1},
+      {"value": 400000, "n_streams": 1}
+    ],
+    "default_n_streams": 10,
+    "expected_nnz": 2,
+    "num_projections": 10,
+    "max_depth": 18,
+    "min_leaf": 2,
+    "bootstrap": 0.8,
+    "n_bins": 128
+  },
+  "trials": {"n": 3, "base_seed": 20260710}
+}
