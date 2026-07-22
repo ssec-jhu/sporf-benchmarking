@@ -13,6 +13,7 @@ import numpy as np
 import ydf
 
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import log_loss
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
@@ -80,7 +81,9 @@ RESULT_FIELDS = [
     "n_bins",
     "train_time",
     "predict_time",
+    "predict_proba_time",
     "accuracy",
+    "log_loss",
     "r2",
     "rmse",
 ]
@@ -183,6 +186,17 @@ def rmse_score(y_true, y_pred):
     y_true = np.asarray(y_true, dtype=np.float64)
     y_pred = np.asarray(y_pred, dtype=np.float64)
     return float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
+
+
+def to_numpy(value):
+    if hasattr(value, "to_output"):
+        try:
+            return np.asarray(value.to_output("numpy"))
+        except TypeError:
+            return np.asarray(value.to_output())
+    if hasattr(value, "get"):
+        return np.asarray(value.get())
+    return np.asarray(value)
 
 
 def require_keys(obj, keys, where):
@@ -654,7 +668,9 @@ def coerce_result_row(row):
         "bootstrap",
         "train_time",
         "predict_time",
+        "predict_proba_time",
         "accuracy",
+        "log_loss",
         "r2",
         "rmse",
     ]
@@ -779,11 +795,30 @@ def train_cuml(task, x_train, y_train, x_test, y_test, learner_args, n_streams):
     t0 = time.perf_counter()
     pred = estimator.predict(x_test, predict_model="CPU")
     predict_time = time.perf_counter() - t0
+    proba = None
+    proba_labels = None
+    predict_proba_time = ""
+    if task == "classification" and hasattr(estimator, "predict_proba"):
+        phase("cuML SPORF: predicting probabilities")
+        t0 = time.perf_counter()
+        proba = estimator.predict_proba(x_test)
+        predict_proba_time = time.perf_counter() - t0
+        if hasattr(estimator, "classes_"):
+            proba_labels = to_numpy(estimator.classes_)
     diagnostics_csv = ""
     if hasattr(estimator, "get_diagnostics_csv"):
         diagnostics_csv = estimator.get_diagnostics_csv()
-    metrics = score_predictions(task, y_test, pred, train_time, predict_time)
-    del estimator, pred
+    metrics = score_predictions(
+        task,
+        y_test,
+        pred,
+        train_time,
+        predict_time,
+        proba=proba,
+        predict_proba_time=predict_proba_time,
+        proba_labels=proba_labels,
+    )
+    del estimator, pred, proba
     gc.collect()
     return metrics, diagnostics_csv
 
@@ -806,16 +841,35 @@ def train_ydf(task, model_label, train_ds, test_ds, y_test, learner_args):
     return score_predictions(task, y_test, pred, train_time, predict_time)
 
 
-def score_predictions(task, y_test, pred, train_time, predict_time):
+def score_predictions(
+    task,
+    y_test,
+    pred,
+    train_time,
+    predict_time,
+    proba=None,
+    predict_proba_time="",
+    proba_labels=None,
+):
     result = {
         "train_time": train_time,
         "predict_time": predict_time,
+        "predict_proba_time": predict_proba_time,
         "accuracy": "",
+        "log_loss": "",
         "r2": "",
         "rmse": "",
     }
     if task == "classification":
         result["accuracy"] = float(accuracy_score(y_test, pred))
+        if proba is not None:
+            proba = to_numpy(proba).astype(np.float64, copy=False)
+            labels = (
+                np.asarray(proba_labels)
+                if proba_labels is not None
+                else np.arange(proba.shape[1])
+            )
+            result["log_loss"] = float(log_loss(y_test, proba, labels=labels))
     else:
         pred = np.asarray(pred, dtype=np.float32)
         result["r2"] = float(r2_score(y_test, pred))
@@ -1019,7 +1073,12 @@ def run_trial_spec(root_dir):
 
 def metric_summary(row):
     if row["task"] == "classification":
-        return f"accuracy={row['accuracy']:.4f}"
+        parts = [f"accuracy={row['accuracy']:.4f}"]
+        if row.get("predict_proba_time", "") != "":
+            parts.append(f"predict_proba={row['predict_proba_time']:.4f}s")
+        if row.get("log_loss", "") != "":
+            parts.append(f"log_loss={row['log_loss']:.4f}")
+        return " ".join(parts)
     return f"r2={row['r2']:.4f} rmse={row['rmse']:.4f}"
 
 
@@ -1616,8 +1675,8 @@ def schema_payload():
                 "models",
             ],
             "x_values": sorted(SWEEP_KEYS),
-            "time_metric_values": ["train_time", "predict_time"],
-            "quality_metric_values": ["accuracy", "r2", "rmse"],
+            "time_metric_values": ["train_time", "predict_time", "predict_proba_time"],
+            "quality_metric_values": ["accuracy", "log_loss", "r2", "rmse"],
             "time_scale_values": ["log", "linear"],
             "optional": [
                 "caption_note",

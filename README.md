@@ -239,9 +239,9 @@ Plot fields:
   `n_features`, `expected_nnz`, or `n_trees`.
 - `plot.x_label` (string, required): X-axis label.
 - `plot.time_metric` (string, required): Timing metric for the top panel. One of
-  `train_time` or `predict_time`.
+  `train_time`, `predict_time`, or `predict_proba_time`.
 - `plot.quality_metric` (string, required): Quality metric for the bottom panel.
-  One of `accuracy`, `r2`, or `rmse`.
+  One of `accuracy`, `log_loss`, `r2`, or `rmse`.
 - `plot.quality_label` (string, required): Bottom-panel y-axis label.
 - `plot.models` (array of strings, required): Models to include. Values are
   `cuml`, `ydf`, and `ydf_quantized`.
@@ -344,6 +344,7 @@ clf = SPORFClassifier(
 
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test, predict_model="CPU")
+y_proba = clf.predict_proba(X_test)
 
 if hasattr(clf, "get_diagnostics_csv"):
     diagnostics_csv = clf.get_diagnostics_csv()
