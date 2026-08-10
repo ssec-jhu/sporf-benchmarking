@@ -1,0 +1,27 @@
+{
+  "name": "jovo-feature-scale-example",
+  "plot": {
+    "caption_note": "train_time excludes data loading/generation, feature subsampling, and YDF dict construction.",
+    "diagnostics": {
+      "aggregate": "mean",
+      "label": "Expected training observation path depth",
+      "metrics": [
+        "weighted_training_path_depth"
+      ],
+      "scale": "linear"
+    },
+    "models": [
+      "cuml"
+    ],
+    "quality_label": "Test accuracy",
+    "quality_metric": "accuracy",
+    "time_metric": "train_time",
+    "time_scale": "log",
+    "x": "n_features",
+    "x_label": "Feature dimensionality"
+  },
+  "runs": [
+    "."
+  ],
+  "title": "jovo-feature-scale-example"
+}

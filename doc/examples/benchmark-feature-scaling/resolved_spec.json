@@ -1,0 +1,1191 @@
+{
+  "compatibility": {
+    "dataset": {
+      "data_dir": "../../../data/jovo/T7",
+      "kind": "jovo_t7",
+      "train_split": 0.8
+    },
+    "fixed_hyperparameters": {
+      "bootstrap": 0.8,
+      "expected_nnz": 2,
+      "max_depth": 18,
+      "min_leaf": 2,
+      "n_bins": 128,
+      "n_trees": 100,
+      "num_projections": 10
+    },
+    "models": [
+      "cuml"
+    ],
+    "sweep_key": "n_features",
+    "task": "classification",
+    "timing_definition": "train_time excludes data loading/generation, feature subsampling, and YDF dict construction"
+  },
+  "dataset": {
+    "data_dir": "../../../data/jovo/T7",
+    "kind": "jovo_t7",
+    "train_split": 0.8
+  },
+  "models": [
+    "cuml"
+  ],
+  "name": "jovo-feature-scale-example",
+  "original_spec": {
+    "dataset": {
+      "data_dir": "../../../data/jovo/T7",
+      "kind": "jovo_t7",
+      "train_split": 0.8
+    },
+    "hyperparameters": {
+      "bootstrap": 0.8,
+      "default_n_streams": 10,
+      "expected_nnz": 2,
+      "max_depth": 18,
+      "min_leaf": 2,
+      "n_bins": 128,
+      "n_features": [
+        {
+          "n_streams": 10,
+          "value": 100
+        },
+        {
+          "n_streams": 10,
+          "value": 1000
+        },
+        {
+          "n_streams": 10,
+          "value": 10000
+        },
+        {
+          "n_streams": 8,
+          "value": 25000
+        },
+        {
+          "n_streams": 4,
+          "value": 50000
+        },
+        {
+          "n_streams": 2,
+          "value": 100000
+        },
+        {
+          "n_streams": 1,
+          "value": 200000
+        },
+        {
+          "n_streams": 1,
+          "value": 300000
+        },
+        {
+          "n_streams": 1,
+          "value": 400000
+        }
+      ],
+      "n_trees": 100,
+      "num_projections": 10
+    },
+    "models": [
+      "cuml"
+    ],
+    "name": "jovo-feature-scale-example",
+    "task": "classification",
+    "trials": {
+      "base_seed": 20260710,
+      "n": 3
+    }
+  },
+  "outputs": {
+    "hparams_jsonl": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/hparams.jsonl",
+    "resolved_spec_json": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/resolved_spec.json",
+    "results_csv": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/results.csv",
+    "root_dir": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling",
+    "tree_diagnostics_csv": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/tree_diagnostics.csv"
+  },
+  "planned_runs": [
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 0,
+      "sweep_key": "n_features",
+      "sweep_value": 100,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 0,
+      "sweep_key": "n_features",
+      "sweep_value": 100,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 0,
+      "sweep_key": "n_features",
+      "sweep_value": 100,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 1000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 1,
+      "sweep_key": "n_features",
+      "sweep_value": 1000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 1000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 1,
+      "sweep_key": "n_features",
+      "sweep_value": 1000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 1000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 1,
+      "sweep_key": "n_features",
+      "sweep_value": 1000,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 10000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 2,
+      "sweep_key": "n_features",
+      "sweep_value": 10000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 10000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 2,
+      "sweep_key": "n_features",
+      "sweep_value": 10000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 10000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 2,
+      "sweep_key": "n_features",
+      "sweep_value": 10000,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 25000,
+        "n_streams": 8,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 3,
+      "sweep_key": "n_features",
+      "sweep_value": 25000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 25000,
+        "n_streams": 8,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 3,
+      "sweep_key": "n_features",
+      "sweep_value": 25000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 25000,
+        "n_streams": 8,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 3,
+      "sweep_key": "n_features",
+      "sweep_value": 25000,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 50000,
+        "n_streams": 4,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 4,
+      "sweep_key": "n_features",
+      "sweep_value": 50000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 50000,
+        "n_streams": 4,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 4,
+      "sweep_key": "n_features",
+      "sweep_value": 50000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 50000,
+        "n_streams": 4,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 4,
+      "sweep_key": "n_features",
+      "sweep_value": 50000,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100000,
+        "n_streams": 2,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 5,
+      "sweep_key": "n_features",
+      "sweep_value": 100000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100000,
+        "n_streams": 2,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 5,
+      "sweep_key": "n_features",
+      "sweep_value": 100000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100000,
+        "n_streams": 2,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 5,
+      "sweep_key": "n_features",
+      "sweep_value": 100000,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 200000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 6,
+      "sweep_key": "n_features",
+      "sweep_value": 200000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 200000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 6,
+      "sweep_key": "n_features",
+      "sweep_value": 200000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 200000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 6,
+      "sweep_key": "n_features",
+      "sweep_value": 200000,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 300000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 7,
+      "sweep_key": "n_features",
+      "sweep_value": 300000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 300000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 7,
+      "sweep_key": "n_features",
+      "sweep_value": 300000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 300000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 7,
+      "sweep_key": "n_features",
+      "sweep_value": 300000,
+      "trial_index": 3
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 400000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1672937952,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1672937952,
+      "sweep_index": 8,
+      "sweep_key": "n_features",
+      "sweep_value": 400000,
+      "trial_index": 1
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 400000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1280706876,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1280706876,
+      "sweep_index": 8,
+      "sweep_key": "n_features",
+      "sweep_value": 400000,
+      "trial_index": 2
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 400000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "learner_args": {
+        "density": 2,
+        "max_depth": 18,
+        "max_features": 10,
+        "max_leaves": -1,
+        "max_samples": 0.8,
+        "min_samples_leaf": 2,
+        "n_bins": 128,
+        "n_estimators": 100,
+        "random_state": 1470347820,
+        "split_criterion": 0,
+        "verbose": false
+      },
+      "model": "cuml",
+      "model_label": "cuML SPORF",
+      "run_id": "jovo-feature-scale-example",
+      "seed": 1470347820,
+      "sweep_index": 8,
+      "sweep_key": "n_features",
+      "sweep_value": 400000,
+      "trial_index": 3
+    }
+  ],
+  "root_dir": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling",
+  "run_id": "jovo-feature-scale-example",
+  "source_spec": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/trial_spec.json",
+  "source_spec_sha256": "3c2fb5a853256f1e4b088f42c3b2beec254e94b74b1b59054bfdf1fedca0425c",
+  "spec_version": 1,
+  "sweep_key": "n_features",
+  "sweep_points": [
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 10,
+      "sweep_index": 0,
+      "sweep_key": "n_features",
+      "sweep_value": 100
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 1000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 10,
+      "sweep_index": 1,
+      "sweep_key": "n_features",
+      "sweep_value": 1000
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 10000,
+        "n_streams": 10,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 10,
+      "sweep_index": 2,
+      "sweep_key": "n_features",
+      "sweep_value": 10000
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 25000,
+        "n_streams": 8,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 8,
+      "sweep_index": 3,
+      "sweep_key": "n_features",
+      "sweep_value": 25000
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 50000,
+        "n_streams": 4,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 4,
+      "sweep_index": 4,
+      "sweep_key": "n_features",
+      "sweep_value": 50000
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 100000,
+        "n_streams": 2,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 2,
+      "sweep_index": 5,
+      "sweep_key": "n_features",
+      "sweep_value": 100000
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 200000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 1,
+      "sweep_index": 6,
+      "sweep_key": "n_features",
+      "sweep_value": 200000
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 300000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 1,
+      "sweep_index": 7,
+      "sweep_key": "n_features",
+      "sweep_value": 300000
+    },
+    {
+      "hyperparameters": {
+        "bootstrap": 0.8,
+        "expected_nnz": 2,
+        "max_depth": 18,
+        "min_leaf": 2,
+        "n_bins": 128,
+        "n_features": 400000,
+        "n_streams": 1,
+        "n_trees": 100,
+        "num_projections": 10
+      },
+      "n_streams": 1,
+      "sweep_index": 8,
+      "sweep_key": "n_features",
+      "sweep_value": 400000
+    }
+  ],
+  "task": "classification",
+  "timing_definition": "train_time excludes data loading/generation, feature subsampling, and YDF dict construction",
+  "trials": {
+    "base_seed": 20260710,
+    "n": 3
+  }
+}

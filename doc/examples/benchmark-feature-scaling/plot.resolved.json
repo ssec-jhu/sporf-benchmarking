@@ -1,0 +1,69 @@
+{
+  "compatibility": {
+    "dataset": {
+      "data_dir": "../../../data/jovo/T7",
+      "kind": "jovo_t7",
+      "train_split": 0.8
+    },
+    "fixed_hyperparameters": {
+      "bootstrap": 0.8,
+      "expected_nnz": 2,
+      "max_depth": 18,
+      "min_leaf": 2,
+      "n_bins": 128,
+      "n_trees": 100,
+      "num_projections": 10
+    },
+    "models": [
+      "cuml"
+    ],
+    "sweep_key": "n_features",
+    "task": "classification",
+    "timing_definition": "train_time excludes data loading/generation, feature subsampling, and YDF dict construction"
+  },
+  "input_runs": [
+    {
+      "diagnostics": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/tree_diagnostics.csv",
+      "diagnostics_sha256": "15c0449711c0db9e423ecf9923aac92d0efbdefe22bd9a6c6a333087de672306",
+      "dir": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling",
+      "results": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/results.csv",
+      "results_sha256": "acad1aa29c5be089479c643e649ebc43709c8c853d536eb33e81156ee43600f4",
+      "spec": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/resolved_spec.json",
+      "spec_sha256": "3bd40a5de8f84fe965bb4423f3f95937712cc203394027ee08588879c3fcb805"
+    }
+  ],
+  "n_rows": 27,
+  "name": "jovo-feature-scale-example",
+  "outputs": {
+    "csv": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/combined.csv",
+    "png": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/plot.png",
+    "resolved_plot_spec": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/plot.resolved.json"
+  },
+  "plot": {
+    "caption_note": "train_time excludes data loading/generation, feature subsampling, and YDF dict construction.",
+    "diagnostics": {
+      "aggregate": "mean",
+      "label": "Expected training observation path depth",
+      "metrics": [
+        "weighted_training_path_depth"
+      ],
+      "scale": "linear"
+    },
+    "models": [
+      "cuml"
+    ],
+    "quality_label": "Test accuracy",
+    "quality_metric": "accuracy",
+    "time_metric": "train_time",
+    "time_scale": "log",
+    "x": "n_features",
+    "x_label": "Feature dimensionality"
+  },
+  "runs": [
+    "."
+  ],
+  "source_plot_spec": "/home/scarlil1/src/github/sporf-benchmarking/doc/examples/benchmark-feature-scaling/plot_spec.json",
+  "source_plot_spec_sha256": "c1ee8abf928ac2aa469bf9a41b11cf923998013e9f95084000b0ffbf021ef72f",
+  "spec_version": 1,
+  "title": "jovo-feature-scale-example"
+}
