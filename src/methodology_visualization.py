@@ -937,7 +937,7 @@ def render_forest(path, trees, X, y, random_state, n_rows=None, n_cols=None, tre
                 y_cursor -= 0.042
 
     fig.suptitle(
-        "SPORF Methodology: 4D Data Partitioning with Sparse Projection Trees",
+        "SPORF Methodology: Partitioning High-Dimensional Data with Sparse Projection Trees",
         fontsize=15,
         weight="bold",
         color=TEXT_COLOR,
