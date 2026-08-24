@@ -9,18 +9,27 @@ data/jovo/T7/t7_20260519_440k_labels.xlsx
 ```
 I also put the Higgs dataset here, so I have `data/higgs/HIGGS.csv`.
 
-Then the easiest way to get cuml sporf working should be as follows, with current working directory set to the parent of this `sporf-benchmarking` repo.
+Then the easiest way to get cuml sporf working should be as follows, with
+current working directory set to the parent of this `sporf-benchmarking` repo.
+The checked-in `environment.yml` lives at the root of this benchmarking repo,
+not in the cuML checkout.
 
 ```
 git clone git@github.com:ssec-jhu/cuml.git
-cd cuml
-conda create -n cuml_dev --file env-explicit.txt
+cd sporf-benchmarking
+conda env create -n cuml_dev -f ./environment.yml
 conda activate cuml_dev
+cd ../cuml
 ./build.sh
 cd ../sporf-benchmarking
 python -s ./src/bench_compare.py run ./doc/examples/benchmark-feature-scaling
 python -s ./src/bench_compare.py plot ./doc/examples/benchmark-feature-scaling
 ```
+
+`environment.yml` lets conda solve against the current channel metadata. The
+older `env-explicit.txt` is an exact Linux package export and can point at
+RAPIDS nightly artifacts that have since been removed from the channel, so it is
+mostly useful as a local snapshot of the original development environment.
 
 ## `bench_compare.py`
 This script has two major subcommands: `run` and `plot`.
@@ -239,9 +248,9 @@ Plot fields:
   `n_features`, `expected_nnz`, or `n_trees`.
 - `plot.x_label` (string, required): X-axis label.
 - `plot.time_metric` (string, required): Timing metric for the top panel. One of
-  `train_time` or `predict_time`.
+  `train_time`, `predict_time`, or `predict_proba_time`.
 - `plot.quality_metric` (string, required): Quality metric for the bottom panel.
-  One of `accuracy`, `r2`, or `rmse`.
+  One of `accuracy`, `log_loss`, `r2`, or `rmse`.
 - `plot.quality_label` (string, required): Bottom-panel y-axis label.
 - `plot.models` (array of strings, required): Models to include. Values are
   `cuml`, `ydf`, and `ydf_quantized`.
@@ -344,6 +353,7 @@ clf = SPORFClassifier(
 
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test, predict_model="CPU")
+y_proba = clf.predict_proba(X_test)
 
 if hasattr(clf, "get_diagnostics_csv"):
     diagnostics_csv = clf.get_diagnostics_csv()
