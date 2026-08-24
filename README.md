@@ -9,18 +9,27 @@ data/jovo/T7/t7_20260519_440k_labels.xlsx
 ```
 I also put the Higgs dataset here, so I have `data/higgs/HIGGS.csv`.
 
-Then the easiest way to get cuml sporf working should be as follows, with current working directory set to the parent of this `sporf-benchmarking` repo.
+Then the easiest way to get cuml sporf working should be as follows, with
+current working directory set to the parent of this `sporf-benchmarking` repo.
+The checked-in `environment.yml` lives at the root of this benchmarking repo,
+not in the cuML checkout.
 
 ```
 git clone git@github.com:ssec-jhu/cuml.git
-cd cuml
-conda create -n cuml_dev --file env-explicit.txt
+cd sporf-benchmarking
+conda env create -n cuml_dev -f ./environment.yml
 conda activate cuml_dev
+cd ../cuml
 ./build.sh
 cd ../sporf-benchmarking
 python -s ./src/bench_compare.py run ./doc/examples/benchmark-feature-scaling
 python -s ./src/bench_compare.py plot ./doc/examples/benchmark-feature-scaling
 ```
+
+`environment.yml` lets conda solve against the current channel metadata. The
+older `env-explicit.txt` is an exact Linux package export and can point at
+RAPIDS nightly artifacts that have since been removed from the channel, so it is
+mostly useful as a local snapshot of the original development environment.
 
 ## `bench_compare.py`
 This script has two major subcommands: `run` and `plot`.
