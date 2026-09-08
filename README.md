@@ -15,7 +15,7 @@ The checked-in `environment.yml` lives at the root of this benchmarking repo,
 not in the cuML checkout.
 
 ```
-git clone git@github.com:ssec-jhu/cuml.git
+git clone --branch scarliles/predict-proba git@github.com:ssec-jhu/cuml.git
 cd sporf-benchmarking
 conda env create -n cuml_dev -f ./environment.yml
 conda activate cuml_dev
@@ -30,6 +30,12 @@ python -s ./src/bench_compare.py plot ./doc/examples/benchmark-feature-scaling
 older `env-explicit.txt` is an exact Linux package export and can point at
 RAPIDS nightly artifacts that have since been removed from the channel, so it is
 mostly useful as a local snapshot of the original development environment.
+
+If `./build.sh` fails while preparing `python/cuml` metadata with an error like
+`Field "project.version" is an invalid PEP 440 version string (got
+'../../../VERSION')`, the cuML checkout is missing the packaging metadata fix.
+Confirm that `python/cuml/pyproject.toml` contains `dynamic = ["version"]`, then
+fetch and checkout the current SPORF branch before rebuilding.
 
 ## `bench_compare.py`
 This script has two major subcommands: `run` and `plot`.
