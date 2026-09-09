@@ -9,13 +9,31 @@ data/jovo/T7/t7_20260519_440k_labels.xlsx
 ```
 I also put the Higgs dataset here, so I have `data/higgs/HIGGS.csv`.
 
-Then the easiest way to get cuml sporf working should be as follows, with
-current working directory set to the parent of this `sporf-benchmarking` repo.
-The checked-in `environment.yml` lives at the root of this benchmarking repo,
-not in the cuML checkout.
+For collaborators who only need to run the benchmarks, the easiest path is to
+create the conda environment, check compatibility against the committed
+baseline, and install the committed cuML wheel:
 
 ```
-git clone --branch scarliles/predict-proba git@github.com:ssec-jhu/cuml.git
+conda env create -n cuml_dev -f ./environment.yml
+conda activate cuml_dev
+python ./src/check_cuml_runtime_env.py \
+  --wheel ./artifacts/cuml-wheels/cuml_cu12-25.10.0-cp313-cp313-linux_x86_64.whl \
+  --baseline ./artifacts/cuml-wheels/cuml_env_baseline.json
+python -m pip install --no-deps \
+  ./artifacts/cuml-wheels/cuml_cu12-25.10.0-cp313-cp313-linux_x86_64.whl
+python -s ./src/bench_compare.py run ./doc/examples/benchmark-feature-scaling
+python -s ./src/bench_compare.py plot ./doc/examples/benchmark-feature-scaling
+```
+
+Use `--no-deps` for the wheel install. The RAPIDS/CUDA dependency stack should
+come from `environment.yml`; pip dependency resolution can try to pull
+incompatible RAPIDS packages or source stubs.
+
+For development against the cuML SPORF fork, build cuML from source. With
+current working directory set to the parent of this `sporf-benchmarking` repo:
+
+```
+git clone git@github.com:ssec-jhu/cuml.git
 cd sporf-benchmarking
 conda env create -n cuml_dev -f ./environment.yml
 conda activate cuml_dev
@@ -35,7 +53,7 @@ If `./build.sh` fails while preparing `python/cuml` metadata with an error like
 `Field "project.version" is an invalid PEP 440 version string (got
 '../../../VERSION')`, the cuML checkout is missing the packaging metadata fix.
 Confirm that `python/cuml/pyproject.toml` contains `dynamic = ["version"]`, then
-fetch and checkout the current SPORF branch before rebuilding.
+fetch the latest default branch from `ssec-jhu/cuml` before rebuilding.
 
 ## `bench_compare.py`
 This script has two major subcommands: `run` and `plot`.
