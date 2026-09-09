@@ -1,0 +1,88 @@
+{
+  "conda": {
+    "default_env": "cuml_dev"
+  },
+  "conda_packages": {
+    "c-compiler": "1.11.0",
+    "cuda-cudart": "12.9.79",
+    "cuda-cudart_linux-64": "12.9.79",
+    "cuda-nvcc": "12.9.86",
+    "cuda-python": "12.9.4",
+    "cuda-version": "12.9",
+    "cudf": "25.10.00",
+    "cuml": "25.10.0",
+    "cuvs": "25.10.00",
+    "cxx-compiler": "1.11.0",
+    "dask-cuda": "25.10.00",
+    "dask-cudf": "25.10.00",
+    "gcc": "14.3.0",
+    "gxx": "14.3.0",
+    "libcuvs": "25.10.00",
+    "libgcc": "15.1.0",
+    "libraft": "25.10.00",
+    "librmm": "25.10.00",
+    "libstdcxx": "15.1.0",
+    "numba": "0.61.2",
+    "numpy": "2.2.6",
+    "pylibraft": "25.10.00",
+    "python": "3.13.9",
+    "python_abi": "3.13",
+    "raft-dask": "25.10.00",
+    "rmm": "25.10.00",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.16.2",
+    "treelite": "4.4.1",
+    "ydf": "0.15.0"
+  },
+  "cuda": {
+    "nvidia_smi": {
+      "available": true,
+      "returncode": 0,
+      "timeout": null
+    }
+  },
+  "packages": {
+    "cuda-python": "12.9.4",
+    "cudf": "25.10.0",
+    "cuml": "25.10.0",
+    "cupy-cuda12x": null,
+    "cuvs": "25.10.0",
+    "dask-cuda": "25.10.0",
+    "dask-cudf": "25.10.0",
+    "libcuml": null,
+    "libcuvs": null,
+    "libraft": null,
+    "librmm": null,
+    "numba": "0.61.2",
+    "numpy": "2.2.6",
+    "pylibraft": "25.10.0",
+    "raft-dask": "25.10.0",
+    "rmm": "25.10.0",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.16.2",
+    "treelite": "4.4.1",
+    "ydf": "0.15.0"
+  },
+  "platform": {
+    "is_wsl": false,
+    "machine": "x86_64",
+    "system": "Linux"
+  },
+  "python": {
+    "cache_tag": "cpython-313",
+    "implementation": "CPython",
+    "soabi": "cpython-313-x86_64-linux-gnu",
+    "version_info": [
+      3,
+      13,
+      9
+    ]
+  },
+  "wheel": {
+    "abi_tag": "cp313",
+    "distribution_version_build": "cuml_cu12-25.10.0",
+    "filename": "cuml_cu12-25.10.0-cp313-cp313-linux_x86_64.whl",
+    "platform_tag": "linux_x86_64",
+    "python_tag": "cp313"
+  }
+}
