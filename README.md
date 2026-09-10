@@ -29,6 +29,11 @@ Use `--no-deps` for the wheel install. The RAPIDS/CUDA dependency stack should
 come from `environment.yml`; pip dependency resolution can try to pull
 incompatible RAPIDS packages or source stubs.
 
+If `import cuml` fails in `cuml.accel` with an error about
+`BaseEstimator._get_default_requests`, check the scikit-learn version. The
+committed wheel baseline was built against `scikit-learn==1.7.2`; newer
+scikit-learn releases can change private estimator metadata APIs used by cuML.
+
 For development against the cuML SPORF fork, build cuML from source. With
 current working directory set to the parent of this `sporf-benchmarking` repo:
 
