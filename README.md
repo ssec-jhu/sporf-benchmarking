@@ -1,4 +1,9 @@
 # sporf-benchmarking
+
+> **Archive notice:** This repository is being archived and has been superseded by
+> [neurodata/sporf-benchmarking](https://github.com/neurodata/sporf-benchmarking).
+> Please use that repository for ongoing development and updates.
+
 Benchmarking sporf in cuml against ydf and/or sklearn
 
 ## Run something now now now
